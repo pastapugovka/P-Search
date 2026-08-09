@@ -1,0 +1,21 @@
+# Зависимости и сборка
+node_modules
+dist
+build
+.svelte-kit
+
+# Окружение и секреты
+.env
+.env.*
+*.log
+
+# Система
+.git
+.gitignore
+Dockerfile
+.dockerignore
+.github
+
+# Данные пользователя
+*.md
+PROMPT.txt
