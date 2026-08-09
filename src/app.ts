@@ -2,10 +2,20 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import { config } from './config.js';
 import type { SearchEngine } from './search/engine.js';
 import type { BotRegistry } from './search/bots.js';
+import type { Learner } from './search/learner.js';
+import type { Store } from './search/store.js';
+import type { Doc } from './search/types.js';
 import { PROVIDERS } from './search/providers.js';
 
 export interface Dependencies {
-	engine: SearchEngine;
+	engine: { get(): SearchEngine; set(next: SearchEngine): void };
+	learner: Learner;
+	store: Store;
+	learnMode: 'dataset' | 'queries';
+	/** Отложенное сохранение обучения в базу. */
+	scheduleSave: () => void;
+	/** Полная замена набора: пересобирает индекс и сохраняет файл данных. */
+	rebuild: (docs: Doc[]) => SearchEngine;
 	bots: BotRegistry;
 	startedAt: number;
 	version: string;
@@ -15,13 +25,13 @@ export interface Dependencies {
 export function createApp(deps: Dependencies): express.Express {
 	const app = express();
 	app.disable('x-powered-by');
-	app.use(express.json({ limit: '2mb' }));
+	app.use(express.json({ limit: '10mb' }));
 
 	// --- CORS -------------------------------------------------------------
 	app.use((req: Request, res: Response, next: NextFunction) => {
 		const origin = config.corsOrigin === '*' ? req.headers.origin || '*' : config.corsOrigin;
 		res.setHeader('Access-Control-Allow-Origin', origin);
-		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
 		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 		res.setHeader('Access-Control-Max-Age', '86400');
 		if (req.method === 'OPTIONS') {
@@ -36,11 +46,15 @@ export function createApp(deps: Dependencies): express.Express {
 		res.json({
 			app: config.appName,
 			version: deps.version,
+			backup: deps.store.isEnabled,
 			endpoints: {
 				search: 'GET /api/search?query=…',
 				suggest: 'GET /api/suggest?query=…',
 				context: 'GET /api/context',
 				documents: 'GET /api/documents',
+				dataset: 'GET /api/dataset — экспорт, POST — импорт',
+				backup: 'POST /api/backup',
+				restore: 'POST /api/restore',
 				providers: 'GET /api/providers',
 				bots: 'GET /api/bots',
 				health: 'GET /api/health'
@@ -50,7 +64,7 @@ export function createApp(deps: Dependencies): express.Express {
 
 	// --- Здоровье ----------------------------------------------------------
 	app.get('/api/health', (_req: Request, res: Response) => {
-		const stats = deps.engine.context().stats;
+		const stats = deps.engine.get().context().stats;
 		res.json({
 			status: 'ok',
 			app: config.appName,
@@ -59,6 +73,11 @@ export function createApp(deps: Dependencies): express.Express {
 			docs: stats.docs,
 			terms: stats.terms,
 			indexBuildMs: stats.buildMs,
+			learning: {
+				mode: deps.learnMode,
+				queries: deps.learner.count,
+				backup: config.backupEnabled
+			},
 			timestamp: new Date().toISOString()
 		});
 	});
@@ -76,7 +95,11 @@ export function createApp(deps: Dependencies): express.Express {
 			res.status(400).json({ error: 'Параметр query обязателен' });
 			return;
 		}
-		const result = deps.engine.search(query, { limit, category, tags, fuzzy, lang });
+		const result = deps.engine.get().search(query, { limit, category, tags, fuzzy, lang });
+		if (deps.learnMode === 'queries' && result.query) {
+			deps.learner.remember(result.query);
+			deps.scheduleSave();
+		}
 		res.json(result);
 	};
 	app.get('/api/search', searchHandler);
@@ -90,21 +113,86 @@ export function createApp(deps: Dependencies): express.Express {
 			return;
 		}
 		const limit = parseLimit(req, 'limit', 8);
-		res.json({ query, suggestions: deps.engine.suggest(query, limit) });
+		const definitions = deps.engine.get().suggest(query, limit);
+		const popular: string[] = deps.learnMode === 'queries' ? deps.learner.top(query, limit) : [];
+		const suggestions = [...popular, ...definitions.filter((s) => !popular.includes(s))].slice(0, limit);
+		res.json({ query, suggestions });
 	});
 
-	// --- Контекст: категории, теги, статистика ------------------------------
+	// --- Контекст: категории, теги, статистика, обучение --------------------
 	app.get('/api/context', (_req: Request, res: Response) => {
-		res.json(deps.engine.context());
+		res.json({
+			...deps.engine.get().context(),
+			learning: {
+				mode: deps.learnMode,
+				queries: deps.learner.count
+			}
+		});
 	});
 
-	// --- Документы ----------------------------------------------------------
+	// --- Результаты поиска (корпус) ----------------------------------------
 	app.get('/api/documents', (req: Request, res: Response) => {
 		const limit = parseLimit(req, 'limit', 50);
 		const offset = parseLimit(req, 'offset', 0);
 		const category = strParam(req, 'category');
 		const tag = strParam(req, 'tag');
-		res.json(deps.engine.listDocuments({ limit, offset, category, tag }));
+		res.json(deps.engine.get().listDocuments({ limit, offset, category, tag }));
+	});
+
+	// --- Набор данных: экспорт и импорт ------------------------------------
+	app.get('/api/dataset', (_req: Request, res: Response) => {
+		res.json({
+			total: deps.engine.get().docs.length,
+			documents: deps.engine.get().docs,
+			learning: deps.learner.snapshot()
+		});
+	});
+
+	app.post('/api/dataset', (req: Request, res: Response) => {
+		const body = req.body ?? {};
+		const raw: unknown = Array.isArray(body) ? body : body.documents;
+		if (!Array.isArray(raw)) {
+			res.status(400).json({ error: 'Ожидается массив документов или поле documents' });
+			return;
+		}
+		const docs = raw
+			.map((d) => d as Record<string, unknown>)
+			.filter((d) => d && typeof d.id === 'string' && typeof d.title === 'string' && typeof d.content === 'string')
+			.map((d) => ({
+				id: d.id as string,
+				title: d.title as string,
+				content: d.content as string,
+				keywords: Array.isArray(d.keywords) ? d.keywords : (d.keywords as string[] | undefined),
+				tags: Array.isArray(d.tags) ? d.tags : (d.tags as string[] | undefined),
+				category: typeof d.category === 'string' ? d.category : undefined,
+				link: typeof d.link === 'string' ? d.link : undefined
+			}));
+		if (docs.length === 0) {
+			res.status(400).json({ error: 'Нет валидных результатов поиска (нужны id, title, content)' });
+			return;
+		}
+		const engine = deps.rebuild(docs);
+		res.status(200).json({ total: engine.docs.length, documents: engine.docs });
+	});
+
+	// --- Бэкапы обучения ---------------------------------------------------
+	app.post('/api/backup', (_req: Request, res: Response) => {
+		const result = deps.store.backup(deps.learner.snapshot());
+		if (!result.ok) {
+			res.status(400).json({ error: 'Бэкапы отключены (SEARCH_BACKUP=false)' });
+			return;
+		}
+		res.json({ backedUp: true, file: result.file, at: new Date().toISOString() });
+	});
+
+	app.post('/api/restore', (_req: Request, res: Response) => {
+		const result = deps.store.restore();
+		if (!result.restored) {
+			res.status(404).json({ error: 'Нет бэкапов для отката' });
+			return;
+		}
+		deps.learner.replace(result.queries);
+		res.json({ restored: true, snapshot: result.snapshot, queries: deps.learner.count });
 	});
 
 	// --- Провайдеры ---------------------------------------------------------
@@ -113,7 +201,7 @@ export function createApp(deps: Dependencies): express.Express {
 		const query = (req.query.query as string | undefined)?.toLowerCase();
 		let providers = PROVIDERS;
 		if (group) providers = providers.filter((p) => p.group.toLowerCase() === group.toLowerCase());
-		if (query) providers = providers.filter((p) => `${p.name} ${p.id}`.toLowerCase().includes(query));
+		if (query) providers = providers.filter((p) => `${p.name} ${p.id} ${p.models.join(' ')}`.toLowerCase().includes(query));
 		res.json({ total: providers.length, providers });
 	});
 

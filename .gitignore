@@ -22,6 +22,12 @@ bun-debug.log*
 .DS_Store
 Thumbs.db
 
+# База s-db и её бэкапы
+data/s-db.json
+data/s-db.json.tmp
+data/s-db.previous.json
+data/backups/
+
 # Редакторы
 .idea/
 .vscode/

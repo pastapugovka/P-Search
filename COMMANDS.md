@@ -243,17 +243,17 @@ curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 
 - `SEARCH_DATA` — путь к файлу с корпусом результатов поиска (./data/search-content.json)
 
-- `DATABASE_URL` — строка подключения к базе бэкапов (PostgreSQL через Prisma)
+- `SEARCH_DB` — путь к файловой базе s-db (./data/s-db.json)
 
-- `SEARCH_LEARN` — режим обучения: `dataset` (только данные набора) или `queries` (данные + поисковые запросы)
+- `SEARCH_BACKUP` — бэкапы обучения в базу: `true` по умолчанию; `false` — данные не теряются, просто не пишутся в базу
 
-- `SEARCH_BACKUP` — бэкапы обучения в базе данных: `true` по умолчанию; `false` — данные не теряются, просто не пишутся в базу
+- `SEARCH_LEARN` — режим обучения: `dataset` (только данные набора) или `queries` (данные + поисковые запросы; частые запросы всплывают в подсказках)
 
 - `APP_NAME` — имя приложения («Поисковая система»)
 
 - `BOT_NAME` — имя бота для авто-привязки (пусто)
 
-Бэкапы хранятся в локальной базе `DATABASE_URL` или в облачной: VK Cloud, Яндекс Облако, Cloud.ru, Google Cloud, AWS, MongoDB Atlas, Neon, Supabase, Redis, Turso Cloud, Upstash, MotherDuck, Convex.
+Бэкапы хранятся в файловой базе s-db (`data/s-db.json`), снапшоты — в `data/backups/`. Подробная настройка — в [**`DATABASE.md`**](./DATABASE.md).
 
 **Поиск:**
 

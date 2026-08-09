@@ -43,6 +43,14 @@ export interface AppConfig {
 	appName: string;
 	botName: string | null;
 	dataDir: string;
+	/** Путь к файловой базе s-db. */
+	sDbPath: string;
+	/** Каталог бэкапов s-db. */
+	backupDir: string;
+	/** Бэкапы в базу: true по умолчанию. */
+	backupEnabled: boolean;
+	/** Режим обучения: 'dataset' или 'queries'. */
+	learn: 'dataset' | 'queries';
 }
 
 loadDotEnv();
@@ -56,6 +64,10 @@ export const config: AppConfig = {
 	appName: process.env.APP_NAME ?? 'Поисковая система',
 	botName: process.env.BOT_NAME?.trim() || null,
 	dataDir: join(ROOT, 'data'),
+	sDbPath: process.env.SEARCH_DB ?? join(ROOT, 'data', 's-db.json'),
+	backupDir: join(ROOT, 'data', 'backups'),
+	backupEnabled: bool(process.env.SEARCH_BACKUP, true),
+	learn: process.env.SEARCH_LEARN === 'queries' ? 'queries' : 'dataset',
 	engine: {
 		titleWeight: num(process.env.SEARCH_TITLE_WEIGHT, 5.0),
 		keywordsWeight: num(process.env.SEARCH_KEYWORDS_WEIGHT, 2.5),

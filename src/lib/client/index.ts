@@ -1,22 +1,32 @@
 import type {
+	BackupResponse,
 	BotsResponse,
 	BotInfo,
 	ContextResponse,
+	DatasetImportResponse,
+	DatasetResponse,
+	DocumentItem,
 	DocumentsResponse,
 	HealthResponse,
 	ProvidersResponse,
+	RestoreResponse,
 	SearchRequest,
 	SearchResponse,
 	SuggestResponse
 } from './types.js';
 
 export type {
+	BackupResponse,
 	BotsResponse,
 	BotInfo,
 	ContextResponse,
+	DatasetImportResponse,
+	DatasetResponse,
+	DocumentItem,
 	DocumentsResponse,
 	HealthResponse,
 	ProvidersResponse,
+	RestoreResponse,
 	SearchRequest,
 	SearchResponse,
 	SuggestResponse
@@ -93,6 +103,29 @@ export class PSearchClient {
 		if (params.group) search.set('group', params.group);
 		if (params.query) search.set('query', params.query);
 		return this.request<ProvidersResponse>(`/api/providers${search.size ? `?${search}` : ''}`);
+	}
+
+	/** Экспорт набора данных с обучением. */
+	dataset(): Promise<DatasetResponse> {
+		return this.request<DatasetResponse>('/api/dataset');
+	}
+
+	/** Импорт набора: полная замена корпуса и пересборка индекса. */
+	importDataset(documents: DocumentItem[]): Promise<DatasetImportResponse> {
+		return this.request<DatasetImportResponse>('/api/dataset', {
+			method: 'POST',
+			body: JSON.stringify({ documents })
+		});
+	}
+
+	/** Сохранить бэкап обучения. */
+	backup(): Promise<BackupResponse> {
+		return this.request<BackupResponse>('/api/backup', { method: 'POST' });
+	}
+
+	/** Откат обучения к последнему бэкапу. */
+	restore(): Promise<RestoreResponse> {
+		return this.request<RestoreResponse>('/api/restore', { method: 'POST' });
 	}
 
 	/** Список ботов. */

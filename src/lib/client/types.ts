@@ -91,3 +91,26 @@ export interface ProvidersResponse {
 	total: number;
 	providers: ProviderInfo[];
 }
+
+export interface DatasetResponse {
+	total: number;
+	documents: DocumentItem[];
+	learning: Record<string, number>;
+}
+
+export interface DatasetImportResponse {
+	total: number;
+	documents: DocumentItem[];
+}
+
+export interface BackupResponse {
+	backedUp: boolean;
+	file: string;
+	at: string;
+}
+
+export interface RestoreResponse {
+	restored: boolean;
+	snapshot?: string;
+	queries: number;
+}

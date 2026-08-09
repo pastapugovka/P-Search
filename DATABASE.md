@@ -1,129 +1,24 @@
-# 🗄️База данных — полная пошаговая настройка
+# 🗄️База данных s-db — настройка
 
-Подробные инструкции: локальные Redis и PostgreSQL, облачная база на примере AWS. После каждого варианта в `.env` указывается строка подключения и сервис перезапускается.
+Хранение обучения поиска — файловая база **s-db** в каталоге `data/`. Никаких серверов и драйверов: файл `s-db.json` с состоянием, каталог `data/backups/` со снапшотами. База работает одинаково локально и в Docker.
 
 > 📄 Все эндпоинты — в [**`API.txt`**](./API.txt), команды и переменные — в [**`COMMANDS.md`**](./COMMANDS.md), обзор — в [**`README.md`**](./README.md).
 
-## Локальная база: Redis
+## По умолчанию
 
-**Шаг 1. Установите Redis:**
+Ничего настраивать не нужно: при каждом запуске состояние загружается из `s-db.json`, при остановке — сохраняется. Бэкапы включены (`SEARCH_BACKUP=true`): состояние переживает перезапуск и остановку сервиса.
 
-```bash
-docker run -d --name p-search-redis -p 6379:6379 redis:7-alpine
-```
+## Смена пути базы
 
-Или через пакетный менеджер: `apt install redis-server`, `brew install redis`.
-
-**Шаг 2. Запустите и проверьте:**
-
-```bash
-redis-cli ping
-```
-
-Ответ `PONG` — Redis работает.
-
-**Шаг 3. Подключите поиск** — в `.env`:
+**Шаг 1. Укажите путь в `.env`:**
 
 ```env
-DATABASE_URL=redis://localhost:6379
+SEARCH_DB=./data/s-db.json
 ```
 
-**Шаг 4. Перезапустите сервис и проверьте бэкапы** (`POST /api/backup`, `GET /api/health`).
+**Шаг 2. Перезапустите сервис** — обучение продолжит сохраняться в новом файле.
 
-## Локальная база: PostgreSQL
-
-**Шаг 1. Установите PostgreSQL 16** (инсталлятор с postgresql.org, `apt install postgresql`, `brew install postgresql@16` или Docker).
-
-**Шаг 2. Запустите сервер** и убедитесь, что он слушает порт 5432.
-
-**Шаг 3. Создайте пользователя и базу:**
-
-```bash
-psql -U postgres
-```
-
-```sql
-CREATE USER psearch WITH PASSWORD 'psearch';
-CREATE DATABASE psearch OWNER psearch;
-```
-
-**Шаг 4. Проверьте подключение:**
-
-```bash
-psql -U psearch -h localhost -d psearch
-```
-
-**Шаг 5. Укажите строку подключения в `.env`:**
-
-```env
-DATABASE_URL=postgres://psearch:psearch@localhost:5432/psearch
-```
-
-**Шаг 6. Перезапустите сервис и проверьте бэкапы** (`POST /api/backup`, `POST /api/restore`).
-
-## PostgreSQL — единственная база без Redis
-
-PostgreSQL полностью покрывает хранение бэкапов, отдельный Redis не нужен.
-
-**Шаг 1. Установите PostgreSQL** тем же способом или из Docker:
-
-```bash
-docker run -d --name p-search-pg \
-  -e POSTGRES_USER=psearch \
-  -e POSTGRES_PASSWORD=psearch \
-  -e POSTGRES_DB=psearch \
-  -p 5432:5432 \
-  postgres:16-alpine
-```
-
-**Шаг 2. Проверьте доступ** (`psql -U psearch -h localhost -d psearch`).
-
-**Шаг 3. Впишите `DATABASE_URL` в `.env`** как в шаге 5 выше.
-
-**Шаг 4. Перезапустите поиск** — бэкапы сохраняются в PostgreSQL, сохранение и откат работают штатно.
-
-## Облачная база: AWS — полная инструкция
-
-**Шаг 1. Создайте аккаунт AWS** на aws.amazon.com (нужна карта, бесплатный уровень доступен год).
-
-**Шаг 2. Откройте сервис Amazon RDS** и нажмите Create database.
-
-**Шаг 3. Выберите стандартное создание:** движок PostgreSQL (или Amazon Aurora PostgreSQL), шаблон Free tier, экземпляр `db.t3.micro`, хранилище 20 ГБ gp2.
-
-**Шаг 4. Задайте мастер-имя пользователя и пароль** — сохраните их в `.env`, никогда в код и в коммиты.
-
-**Шаг 5. Настройте сеть:** разрешите публичный доступ (Public access) и создайте security group с входным правилом TCP 5432 **только с IP вашего сервера**. Открывать `0.0.0.0/0` не рекомендуется.
-
-**Шаг 6. Нажмите Create database** и дождитесь статуса **Available** (обычно 5–10 минут).
-
-**Шаг 7. Скопируйте endpoint** базы — строка вида `dbname.xxxxxxx.us-east-1.rds.amazonaws.com:5432`.
-
-**Шаг 8. Соберите строку подключения и впишите в `.env`:**
-
-```env
-DATABASE_URL=postgres://masteruser:ВашПароль@dbname.xxxxxxx.us-east-1.rds.amazonaws.com:5432/postgres
-```
-
-**Шаг 9. Убедитесь, что security group пропускает порт 5432 с IP клиента.**
-
-**Шаг 10. Проверьте подключение** (`psql` или любой клиент), перезапустите поиск и проверьте бэкапы: `POST /api/backup`, затем `POST /api/restore`.
-
-**Шаг 11. Защита:** пароль и endpoint — только в `.env` или переменных окружения; доступ ограничен security group, а не открытым портом; IAM-политики — минимальные.
-
-## Redis в облаке: AWS ElastiCache (кратко)
-
-1. ElastiCache → Create cache cluster → Redis, `cache.t3.micro`
-2. Скопируйте endpoint (`xxxxx.cache.amazonaws.com:6379`) и впишите в `.env`:
-
-```env
-DATABASE_URL=redis://xxxxx.cache.amazonaws.com:6379
-```
-
-3. Откройте порт 6379 только с IP вашего сервера; ключи — только в `.env`.
-
-## ✅Проверка после настройки
-
-После любого варианта базы убедитесь, что бэкапы работают:
+**Шаг 3. Проверьте бэкапы** (`POST /api/backup`, `POST /api/restore`, `GET /api/health`):
 
 ```bash
 curl "http://localhost:3000/api/health"
@@ -131,4 +26,36 @@ curl -X POST "http://localhost:3000/api/backup"
 curl -X POST "http://localhost:3000/api/restore"
 ```
 
-`GET /api/health` — статус сервиса, `POST /api/backup` сохраняет состояние обучения, `POST /api/restore` откатывает к последнему бэкапу.
+## Бэкапы и откат
+
+- `POST /api/backup` — снапшот текущего состояния в `data/backups/s-backup-*.json`
+
+- `POST /api/restore` — откат к последнему снапшоту
+
+- `GET /api/dataset` — экспорт набора с обучением · `POST /api/dataset` — полная замена набора (корпус сохраняется в `SEARCH_DATA`, индекс пересобирается сразу)
+
+## Отключение бэкапов
+
+`SEARCH_BACKUP=false` — запись в базу приостанавливается, **данные не теряются**: корпус, индекс и накопленное обучение остаются на месте. Включили обратно — сохранение продолжится с того же места.
+
+## Docker
+
+Каталог `data/` смонтирован томом (`./data:/app/data`): база и бэкапы переживают пересоздание контейнера.
+
+```bash
+docker compose up -d --build
+```
+
+## Перенос на другой диск
+
+1. Остановите сервис
+
+2. Скопируйте `data/s-db.json` и каталог `data/backups/` на новый диск
+
+3. Укажите `SEARCH_DB` на новое расположение
+
+4. Запустите заново — обучение восстановится
+
+## Резервное копирование вовне
+
+Снапшоты из `data/backups/` — готовые резервные копии: копируйте их в облако или на отдельный диск регулярно (cron, `docker cp`, синхронизация каталога). Для восстановления верните файл в `data/backups/` и вызовите `POST /api/restore`.

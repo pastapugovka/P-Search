@@ -64,15 +64,21 @@ DELETE /api/bots/:name — отключить бота
 
 - Пример: curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 
-GET /api/dataset — экспорт набора данных в JSON
+GET /api/dataset — экспорт набора данных и обучения в JSON
+
+- Ответ: {"total":38,"documents":[…],"learning":{…}}
 
 - Пример: curl "http://localhost:3000/api/dataset" -o dataset.json
 
-POST /api/dataset — импорт набора данных из JSON
+POST /api/dataset — полный импорт набора: замена корпуса, пересборка индекса, сохранение файла
+
+- Тело: массив документов [{"id","title","content",…}] или {"documents":[…]}; обязательны id, title, content
 
 - Пример: curl -X POST "http://localhost:3000/api/dataset" -H "Content-Type: application/json" --data-binary "@dataset.json"
 
 POST /api/backup — сохранить бэкап обучения в базу
+
+- Снапшот: data/backups/s-backup-<метка>.json
 
 - Пример: curl -X POST "http://localhost:3000/api/backup"
 
