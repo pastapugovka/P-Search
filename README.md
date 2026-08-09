@@ -62,6 +62,13 @@ bun run dev
 
 Сервис поднимется на `http://localhost:3000` с 38 демонстрационными результатами поиска.
 
+Сборка и проверка типов:
+
+```bash
+bun run check   # проверка типов
+bun run build   # сборка в dist/
+```
+
 **Проверьте работу:**
 
 ```bash
@@ -300,6 +307,16 @@ curl -X POST "http://localhost:3000/api/bots" \
 
 - **Как подключить к своему приложению?** REST API (`/api/search`) или типизированный SDK в `src/lib/client` — браузер, сервер, десктоп
 
+## 📋Системные требования
+
+- **Node.js ≥ 20** или **Bun ≥ 1.1** (см. `engines` в package.json)
+
+- **TypeScript 5.7+** для сборки и SDK
+
+- **Docker 24+** для контейнерного запуска
+
+- RAM: от 256 МБ, диск: от 50 МБ под образ
+
 ## 🧰Стек технологий
 
 **TypeScript 5.9** · **Bun 1.3** · **Node.js 22 LTS** · **Express 5** · **Docker** · **GitHub Actions** · **Linux**
@@ -308,20 +325,6 @@ curl -X POST "http://localhost:3000/api/bots" \
   <img src="https://skillicons.dev/icons?i=ts,bun,nodejs,express,npm,docker,git,github,githubactions,linux,vscode" alt="TypeScript, Bun, Node.js, Express, npm, Docker, Git, GitHub, GitHub Actions, Linux, VS Code" />
 </a>
 
-## ⭐Поддержка проекта
-
-Если проект пригодился — поставьте :star: репозиторию, это вдохновляет на новые улучшения.
-
 ## ⚖️Лицензирование
 
 Проект распространяется на условиях лицензии [MIT](LICENSE).
-
-## 🩷Благодарность
-
-Спасибо всем, кто пользуется и помогает делать поиск лучше.
-
-<div align="center">
-
-**Сделано с любовью к чистому поиску**
-
-</div>
