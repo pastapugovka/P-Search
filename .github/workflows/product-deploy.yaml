@@ -1,0 +1,35 @@
+name: Product Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  product-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Загрузка репозитория
+        uses: actions/checkout@v4
+
+      - name: Установка ключа для пользователя
+        run: |
+          set -eu
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          echo "${{ secrets.DEPLOY_KEY }}" > "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+
+      - name: Сборка и запуск контейнера
+        run: |
+          ssh-keyscan -H api.doka.guide >> ~/.ssh/known_hosts
+          export DOCKER_HOST="ssh://deploy@api.doka.guide"
+          docker stop search || true
+          docker image rm search || true
+          docker build -t search .
+          docker run -d --rm --name search -p 8070:8070 \
+            --env PORT=8070 \
+            --env HOST=0.0.0.0 \
+            --env CORS_ORIGIN="*" \
+            search
