@@ -1,0 +1,33 @@
+{
+  "name": "p-search",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ракетно быстрый полнотекстовый поиск на Bun + Express: без баз данных, индекс в памяти, REST API для Next.js, React, Electron и C#",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./client": "./dist/lib/client/index.js"
+  },
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "dev:node": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "start:bun": "bun dist/index.js",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
