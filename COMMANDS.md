@@ -73,17 +73,51 @@
 /P anthropic --disconnect
 ```
 
-**Каталог провайдеров по группам:**
+**Каталог провайдеров по группам — только полная поддержка:**
 
-- **AI-модели** — anthropic, openai, google, x-ai, deepseek, mistral, moonshot, minimax, meta, cohere, zhipu, qwen, baidu, perplexity, databricks, ai21, writer, gigachat, sber, abacus, apple
+**AI-модели:**
 
-- **Инфраструктура** — groq, cerebras, fireworks, together, baseten, nvidia, huggingface, deepinfra, nebius, gmi, iotnet, cortecs, frogbot, venice, poolside, za, modal, 302ai, atomic-chat
+- anthropic — Claude Opus 4, Sonnet 4, Haiku 4.5
 
-- **Облака и шлюзы** — amazon, azure, azure-cognitive, google-vertex, digitalocean, openrouter, github-copilot, gitlab-duo, ollama-cloud, vercel, cloudflare, helicone, llm-gateway, zenmux, stackit, ovhcloud, sap, snowflake, scaleway, opencode-zen
+- openai — GPT-5, GPT-5-nano, GPT-4o
 
-- **Локальные** — ollama, lmstudio, llama.cpp, atomic-chat, vllm, localai, textgen, petals
+- google — Gemini
 
-- **Базы данных** — chroma, pinecone, weaviate, qdrant, milvus, vespa, elasticsearch, opensearch, meilisearch, typesense, algolia, redis, sqlite, postgres, mysql, mongo, clickhouse, duckdb, turbopuffer, neon, supabase, firebase, cassandra
+- x-ai — Grok
+
+- deepseek — V4 Pro, V3, R1
+
+- mistral — Mistral Large, Medium, Mixtral 8x7B
+
+- moonshot — Kimi K2, Moonshot V1
+
+- minimax — M2.1
+
+**Инфраструктура:**
+
+- groq — Llama 3.1, Mixtral 8x7B
+
+- cerebras — Qwen 3 Coder 480B
+
+- fireworks — Kimi K2 Instruct
+
+- together — Llama 3.1 405B, Qwen 2.5 72B
+
+- baseten — Kimi K2 Instruct
+
+- nvidia — Nemotron 3 Super 120B, Nemotron Mixture
+
+- huggingface — Kimi-K2-Instruct, GLM-4.6
+
+**Облака и шлюзы:**
+
+- openrouter — 300+ моделей единым ключом
+
+**Локальные:**
+
+- ollama — Llama 3, Mistral, Qwen 2, GPT-OSS
+
+- lmstudio — Gemma 3n E4B, любые скачанные модели
 
 Каталог доступен и через API: `GET /api/providers?group=AI-модели&query=claude`
 

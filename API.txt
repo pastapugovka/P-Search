@@ -1,0 +1,73 @@
+P-Search — все REST API эндпоинты
+
+Сервер: по умолчанию http://localhost:3000 (порт и хост меняются через PORT и HOST в .env).
+
+GET / — справочник всех эндпоинтов
+
+GET /api/health — статус сервиса
+
+- Проверка: curl "http://localhost:3000/api/health"
+
+GET /api/search — полнотекстовый поиск
+
+- Параметры: query (обязателен), limit, category, tags (через запятую), fuzzy (true/false), lang (auto/ru/en)
+
+- Операторы запроса: +обязательное, -исключить, "фраза", @категория, #тег
+
+- Пример: curl "http://localhost:3000/api/search?query=docker&limit=5&lang=ru"
+
+POST /api/search — то же самое, параметры в теле JSON
+
+- Тело: {"query":"стемминг","tags":["поиск"],"fuzzy":true}
+
+- Пример: curl -X POST "http://localhost:3000/api/search" -H "Content-Type: application/json" -d '{"query":"стемминг","limit":5}'
+
+GET /api/suggest — предиктивные подсказки по префиксу
+
+- Параметры: query, limit (по умолчанию 8)
+
+- Пример: curl "http://localhost:3000/api/suggest?query=пои&limit=5"
+
+GET /api/context — категории, теги и статистика индекса
+
+GET /api/documents — результаты поиска (корпус)
+
+- Параметры: limit (по умолчанию 50), offset, category, tag
+
+- Пример: curl "http://localhost:3000/api/documents?category=инфраструктура&limit=10"
+
+GET /api/providers — каталог провайдеров
+
+- Параметры: group (AI-модели, Инфраструктура, Облака и шлюзы, Локальные), query (поиск по имени)
+
+- Пример: curl "http://localhost:3000/api/providers?group=AI-модели&query=claude"
+
+GET /api/bots — список подключённых ботов
+
+POST /api/bots — привязать бота, его команды появляются в палитре «/»
+
+- Тело: {"name":"мой-бот","platform":"discord","commands":["/search","/stats"]}
+
+- Пример: curl -X POST "http://localhost:3000/api/bots" -H "Content-Type: application/json" -d '{"name":"мой-бот","platform":"discord","commands":["/search","/stats"]}'
+
+DELETE /api/bots/:name — отключить бота
+
+- Пример: curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
+
+GET /api/dataset — экспорт набора данных в JSON
+
+- Пример: curl "http://localhost:3000/api/dataset" -o dataset.json
+
+POST /api/dataset — импорт набора данных из JSON
+
+- Пример: curl -X POST "http://localhost:3000/api/dataset" -H "Content-Type: application/json" --data-binary "@dataset.json"
+
+POST /api/backup — сохранить бэкап обучения в базу
+
+- Пример: curl -X POST "http://localhost:3000/api/backup"
+
+POST /api/restore — откат обучения к последнему бэкапу из базы
+
+- Пример: curl -X POST "http://localhost:3000/api/restore"
+
+Типизированный клиент для всех эндпоинтов — createClient из src/lib/client (модели ответов — в src/lib/client/types.ts).
