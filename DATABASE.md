@@ -2,6 +2,8 @@
 
 Подробные инструкции: локальные Redis и PostgreSQL, облачная база на примере AWS. После каждого варианта в `.env` указывается строка подключения и сервис перезапускается.
 
+> 📄 Все эндпоинты — в [**`API.txt`**](./API.txt), команды и переменные — в [**`COMMANDS.md`**](./COMMANDS.md), обзор — в [**`README.md`**](./README.md).
+
 ## Локальная база: Redis
 
 **Шаг 1. Установите Redis:**
@@ -26,7 +28,7 @@ redis-cli ping
 DATABASE_URL=redis://localhost:6379
 ```
 
-**Шаг 4. Перезапустите сервис и проверьте бэкапы** (`/backup`, `GET /api/health`).
+**Шаг 4. Перезапустите сервис и проверьте бэкапы** (`POST /api/backup`, `GET /api/health`).
 
 ## Локальная база: PostgreSQL
 
@@ -57,7 +59,7 @@ psql -U psearch -h localhost -d psearch
 DATABASE_URL=postgres://psearch:psearch@localhost:5432/psearch
 ```
 
-**Шаг 6. Перезапустите сервис и проверьте бэкапы** (`/backup`, `/restore`).
+**Шаг 6. Перезапустите сервис и проверьте бэкапы** (`POST /api/backup`, `POST /api/restore`).
 
 ## PostgreSQL — единственная база без Redis
 
@@ -118,3 +120,15 @@ DATABASE_URL=redis://xxxxx.cache.amazonaws.com:6379
 ```
 
 3. Откройте порт 6379 только с IP вашего сервера; ключи — только в `.env`.
+
+## ✅Проверка после настройки
+
+После любого варианта базы убедитесь, что бэкапы работают:
+
+```bash
+curl "http://localhost:3000/api/health"
+curl -X POST "http://localhost:3000/api/backup"
+curl -X POST "http://localhost:3000/api/restore"
+```
+
+`GET /api/health` — статус сервиса, `POST /api/backup` сохраняет состояние обучения, `POST /api/restore` откатывает к последнему бэкапу.

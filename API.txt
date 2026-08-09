@@ -2,6 +2,16 @@ P-Search — все REST API эндпоинты
 
 Сервер: по умолчанию http://localhost:3000 (порт и хост меняются через PORT и HOST в .env).
 
+> Обзор возможностей — в README.md, команды и переменные — в COMMANDS.md, модели — в MODELS.txt, базы — в DATABASE.md.
+
+Быстрый старт — три запроса:
+
+- GET /api/health — сервис жив
+
+- GET /api/search?query=поиск — поиск работает
+
+- GET /api/suggest?query=пои&limit=5 — подсказки готовы
+
 GET / — справочник всех эндпоинтов
 
 GET /api/health — статус сервиса
@@ -71,3 +81,5 @@ POST /api/restore — откат обучения к последнему бэк
 - Пример: curl -X POST "http://localhost:3000/api/restore"
 
 Типизированный клиент для всех эндпоинтов — createClient из src/lib/client (модели ответов — в src/lib/client/types.ts).
+
+Операторы параметра query: @категория, #тег, +обязательное, -исключить, "фраза" — подробно в README.md → «Поисковые операторы».

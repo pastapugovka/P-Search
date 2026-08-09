@@ -2,7 +2,9 @@ P-Search — список поддерживаемых моделей
 
 Каталог собран по документации OpenCode: провайдеры и модели, с которыми работает экосистема. Пометки: «полная поддержка» — проверено и работает целиком, «частичная совместимость» — работает после дополнительной настройки, «не проверено» — совместимость возможна, но не проверена.
 
-AI-модели
+Каталог доступен через API: GET /api/providers?group=…&query=…
+
+AI-модели — 21 провайдер
 
 - Anthropic — Claude Opus 4, Sonnet 4, Haiku 4.5 (полная поддержка)
 
@@ -46,7 +48,7 @@ AI-модели
 
 - Apple — OpenELM 3B (не проверено)
 
-Инфраструктура
+Инфраструктура — 18 провайдеров
 
 - Groq — Llama 3.1, Mixtral 8x7B (полная поддержка)
 
@@ -84,7 +86,7 @@ AI-модели
 
 - Z.AI — (не проверено)
 
-Облака и шлюзы
+Облака и шлюзы — 20 провайдеров
 
 - Amazon Bedrock — Claude, Llama, Mistral (частичная совместимость — нужен доступ к моделям)
 
@@ -126,7 +128,7 @@ AI-модели
 
 - Scaleway — (не проверено)
 
-Локальные
+Локальные — 8 провайдеров
 
 - Ollama — Llama 3, Mistral, Qwen 2, GPT-OSS (полная поддержка)
 
@@ -143,3 +145,5 @@ AI-модели
 - oobabooga — Llama, Mistral (не проверено)
 
 - Petals — Bloom 176B (не проверено)
+
+Итого 67 позиций. Полная поддержка (18): anthropic, openai, google, x-ai, deepseek, mistral, moonshot, minimax, groq, cerebras, fireworks, together, baseten, nvidia, huggingface, openrouter, ollama, lmstudio.
