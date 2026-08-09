@@ -1,5 +1,8 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
+import { timingSafeEqual } from 'node:crypto';
 import { config } from './config.js';
+import { buildRagPrompt, runAi } from './ai.js';
+import { buildOpenApi, swaggerUiHtml } from './openapi.js';
 import type { SearchEngine } from './search/engine.js';
 import type { BotRegistry } from './search/bots.js';
 import type { Learner } from './search/learner.js';
@@ -41,6 +44,31 @@ export function createApp(deps: Dependencies): express.Express {
 		next();
 	});
 
+	// --- Авторизация по API-ключу --------------------------------------------
+	// Если задан API_KEY, все /api/* требуют ключ (кроме health, openapi, docs).
+	// Ключ передаётся заголовком Authorization: Bearer <ключ> или X-API-Key: <ключ>.
+	if (config.apiKey) {
+		const expected = Buffer.from(config.apiKey);
+		app.use((req: Request, res: Response, next: NextFunction) => {
+			const path = req.path;
+			if (path === '/api/health' || path === '/api/openapi.json' || path === '/api/docs') {
+				next();
+				return;
+			}
+			if (path.startsWith('/api/')) {
+				const header = req.headers.authorization;
+				const raw = header?.startsWith('Bearer ') ? header.slice(7) : (req.headers['x-api-key'] as string | undefined);
+				if (raw && Buffer.from(raw).length === expected.length && timingSafeEqual(Buffer.from(raw), expected)) {
+					next();
+					return;
+				}
+				res.status(401).json({ error: 'Требуется API-ключ: Authorization: Bearer <ключ> или X-API-Key: <ключ>' });
+				return;
+			}
+			next();
+		});
+	}
+
 	// --- Корень: справочник API --------------------------------------------
 	app.get('/', (_req: Request, res: Response) => {
 		res.json({
@@ -57,6 +85,9 @@ export function createApp(deps: Dependencies): express.Express {
 				restore: 'POST /api/restore',
 				providers: 'GET /api/providers',
 				bots: 'GET /api/bots',
+				ai: 'POST /api/ai — ИИ-режим (нужен AI_PROVIDER)',
+				openapi: 'GET /api/openapi.json',
+				docs: 'GET /api/docs — Swagger UI',
 				health: 'GET /api/health'
 			}
 		});
@@ -225,6 +256,59 @@ export function createApp(deps: Dependencies): express.Express {
 	app.delete('/api/bots/:name', (req: Request, res: Response) => {
 		const removed = deps.bots.remove(String(req.params.name));
 		res.status(removed ? 200 : 404).json({ removed });
+	});
+
+	// --- ИИ-режим: RAG по результатам поиска ----------------------------------
+	app.post('/api/ai', async (req: Request, res: Response) => {
+		const settings = config.ai;
+		if (!settings.provider) {
+			res.status(400).json({ error: 'ИИ-режим не настроен: задайте AI_PROVIDER в .env (например AI_PROVIDER=openai)' });
+			return;
+		}
+		const query = (req.body?.query ?? req.body?.question) as string | undefined;
+		if (!query?.trim()) {
+			res.status(400).json({ error: 'Параметр query обязателен' });
+			return;
+		}
+		const limit = parseLimit(req, 'limit', 5);
+		const category = strParam(req, 'category');
+		const tags = splitParam(req, 'tags');
+		const lang = langParam(req);
+
+		const started = performance.now();
+		try {
+			// Движок ищет топ-результаты, из них собирается контекст для модели.
+			const result = deps.engine.get().search(query, { limit, category, tags, fuzzy: true, lang });
+			const engine = deps.engine.get();
+			const documents = result.hits
+				.map((hit) => engine.docs.find((d) => d.id === hit.id))
+				.filter((d): d is Doc => Boolean(d))
+				.map((d) => ({
+					title: d.title,
+					link: d.link ?? '',
+					excerpt: d.content.slice(0, 1500)
+				}));
+			const answer = await runAi(settings, buildRagPrompt(query, documents));
+			res.json({
+				query,
+				answer,
+				sources: documents.map((d, i) => ({ id: String(i + 1), title: d.title, link: d.link })),
+				ms: Math.round(performance.now() - started)
+			});
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			console.error(`[ai-ошибка] ${message}`);
+			res.status(502).json({ error: `Ошибка ИИ-провайдера: ${message}` });
+		}
+	});
+
+	// --- OpenAPI ------------------------------------------------------------
+	app.get('/api/openapi.json', (_req: Request, res: Response) => {
+		res.json(buildOpenApi({ appName: config.appName, version: deps.version, auth: Boolean(config.apiKey) }));
+	});
+
+	app.get('/api/docs', (_req: Request, res: Response) => {
+		res.type('html').send(swaggerUiHtml(config.appName));
 	});
 
 	// --- 404 и ошибки -------------------------------------------------------

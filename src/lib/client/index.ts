@@ -1,4 +1,6 @@
 import type {
+	AiChatRequest,
+	AiChatResponse,
 	BackupResponse,
 	BotsResponse,
 	BotInfo,
@@ -16,6 +18,8 @@ import type {
 } from './types.js';
 
 export type {
+	AiChatRequest,
+	AiChatResponse,
 	BackupResponse,
 	BotsResponse,
 	BotInfo,
@@ -38,6 +42,8 @@ export interface ClientOptions {
 	fetch?: typeof fetch;
 	/** Заголовки по умолчанию. */
 	headers?: Record<string, string>;
+	/** API-ключ: добавляется заголовком X-API-Key к каждому запросу. */
+	apiKey?: string;
 }
 
 /** Типизированный клиент для REST API поисковой системы. */
@@ -49,7 +55,11 @@ export class PSearchClient {
 	constructor(options: ClientOptions) {
 		this.baseUrl = options.baseUrl.replace(/\/+$/, '');
 		this.fetchImpl = options.fetch ?? globalThis.fetch;
-		this.headers = { 'Content-Type': 'application/json', ...options.headers };
+		this.headers = {
+			'Content-Type': 'application/json',
+			...(options.apiKey ? { 'X-API-Key': options.apiKey } : {}),
+			...options.headers
+		};
 	}
 
 	private async request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -149,6 +159,14 @@ export class PSearchClient {
 	/** Проверка здоровья сервиса. */
 	health(): Promise<HealthResponse> {
 		return this.request<HealthResponse>('/api/health');
+	}
+
+	/** ИИ-режим: RAG-ответ модели по результатам поиска. */
+	aiChat(request: AiChatRequest): Promise<AiChatResponse> {
+		return this.request<AiChatResponse>('/api/ai', {
+			method: 'POST',
+			body: JSON.stringify(request)
+		});
 	}
 }
 

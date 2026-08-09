@@ -2,6 +2,8 @@ P-Search — все REST API эндпоинты
 
 Сервер: по умолчанию http://localhost:3000 (порт и хост меняются через PORT и HOST в .env).
 
+Авторизация: если задан API_KEY в .env — каждый запрос к /api/* требует заголовок Authorization: Bearer <ключ> или X-API-Key: <ключ>, иначе 401. Открыты всегда: /api/health, /api/openapi.json, /api/docs.
+
 > Обзор возможностей — в README.md, команды и переменные — в COMMANDS.md, модели — в MODELS.txt, базы — в DATABASE.md.
 
 Быстрый старт — три запроса:
@@ -51,6 +53,22 @@ GET /api/providers — каталог провайдеров
 - Параметры: group (AI-модели, Инфраструктура, Облака и шлюзы, Локальные), query (поиск по имени)
 
 - Пример: curl "http://localhost:3000/api/providers?group=AI-модели&query=claude"
+
+POST /api/ai — ИИ-режим: RAG-ответ модели по результатам поиска
+
+- Требует AI_PROVIDER в .env (+ AI_API_KEY для облачных). Поддерживаются OpenAI-совместимые (openai, deepseek, groq, mistral, moonshot, minimax, x-ai, openrouter, together, fireworks, cerebras, ollama, lmstudio), Anthropic и Google Gemini
+
+- Параметры тела: query (обязателен), limit (сколько результатов в контекст, по умолчанию 5), category, tags, lang
+
+- Ответ: {"query","answer","sources":[{"id","title","link"}],"ms"}
+
+- Ошибки: 400 — нет query или ИИ не настроен; 502 — ошибка провайдера
+
+- Пример: curl -X POST "http://localhost:3000/api/ai" -H "Content-Type: application/json" -d '{"query":"как работает поиск","limit":5}'
+
+GET /api/openapi.json — OpenAPI 3.1-спека всех эндпоинтов
+
+GET /api/docs — Swagger UI, интерактивная документация (HTML)
 
 GET /api/bots — список подключённых ботов
 

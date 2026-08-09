@@ -1,6 +1,6 @@
 {
   "name": "p-search",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "description": "Ракетно быстрый полнотекстовый поиск на Bun + Express: без баз данных, индекс в памяти, REST API для Next.js, React, Electron и C#",

@@ -114,3 +114,25 @@ export interface RestoreResponse {
 	snapshot?: string;
 	queries: number;
 }
+
+/** Источник в ответе ИИ-режима. */
+export interface AiSource {
+	id: string;
+	title: string;
+	link: string;
+}
+
+export interface AiChatResponse {
+	query: string;
+	answer: string;
+	sources: AiSource[];
+	ms: number;
+}
+
+export interface AiChatRequest {
+	query: string;
+	limit?: number;
+	category?: string | null;
+	tags?: string[];
+	lang?: 'auto' | 'ru' | 'en';
+}

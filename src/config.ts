@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import type { EngineConfig } from './search/engine.js';
+import type { AiSettings } from './ai.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -51,6 +52,10 @@ export interface AppConfig {
 	backupEnabled: boolean;
 	/** Режим обучения: 'dataset' или 'queries'. */
 	learn: 'dataset' | 'queries';
+	/** API-ключ авторизации (пусто — доступ открыт). */
+	apiKey: string | null;
+	/** ИИ-режим: реальные вызовы моделей через провайдеров. */
+	ai: AiSettings;
 }
 
 loadDotEnv();
@@ -68,6 +73,13 @@ export const config: AppConfig = {
 	backupDir: join(ROOT, 'data', 'backups'),
 	backupEnabled: bool(process.env.SEARCH_BACKUP, true),
 	learn: process.env.SEARCH_LEARN === 'queries' ? 'queries' : 'dataset',
+	apiKey: process.env.API_KEY?.trim() || null,
+	ai: {
+		provider: process.env.AI_PROVIDER?.trim().toLowerCase() || null,
+		model: process.env.AI_MODEL?.trim() || null,
+		apiKey: process.env.AI_API_KEY?.trim() || null,
+		baseUrl: process.env.AI_BASE_URL?.trim() || null
+	},
 	engine: {
 		titleWeight: num(process.env.SEARCH_TITLE_WEIGHT, 5.0),
 		keywordsWeight: num(process.env.SEARCH_KEYWORDS_WEIGHT, 2.5),

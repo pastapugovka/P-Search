@@ -8,7 +8,7 @@ import { Learner } from './search/learner.js';
 import { Store } from './search/store.js';
 import type { Doc } from './search/types.js';
 
-const VERSION = '2.0.0';
+const VERSION = '2.1.0';
 
 function loadDocs(): Doc[] {
 	const path = isAbsolute(config.dataPath) ? config.dataPath : join(ROOT, config.dataPath);

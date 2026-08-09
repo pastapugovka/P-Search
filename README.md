@@ -99,15 +99,22 @@ curl "http://localhost:3000/api/search?query=поиск"
 
 - `POST /api/backup` — сохранить бэкап обучения · `POST /api/restore` — откат к последнему бэкапу
 
-**Провайдеры и боты:**
+**Провайдеры, ИИ и боты:**
 
 - `GET /api/providers?group=…&query=…` — каталог провайдеров
 
+- `POST /api/ai` — ИИ-режим: RAG-ответ модели по результатам поиска · параметры: `query`, `limit`, `category`, `tags`
+
 - `GET/POST /api/bots` — список и привязка ботов · `DELETE /api/bots/:name` — отключить бота
 
-**Сервис:**
+**Сервис и документация:**
 
 - `GET /` — справочник всех эндпоинтов · `GET /api/health` — статус сервиса
+
+- `GET /api/openapi.json` — OpenAPI 3.1-спека · `GET /api/docs` — Swagger UI
+
+> [!NOTE]
+> Если в `.env` задан `API_KEY`, все `/api/*` требуют ключ в заголовке `Authorization: Bearer <ключ>` или `X-API-Key: <ключ>`. Без ключа — `401`. Открыты всегда: `/api/health`, `/api/openapi.json`, `/api/docs`. Клиент умеет передавать ключ автоматически: `createClient(url, { apiKey })`.
 
 Параметры поиска: `limit` · `category`/`tags` · `fuzzy` · `lang` (`auto`/`ru`/`en`). Операторы: `+обязательное` · `-исключить` · `"фраза"` · `@категория` · `#тег`.
 
@@ -228,6 +235,8 @@ docker compose up -d --build
 
 - `/restore` → `POST /api/restore` — откат к последнему бэкапу
 
+- `/ai` → `POST /api/ai` — ответ модели по найденному (нужен `AI_PROVIDER`)
+
 **Язык и настройки:**
 
 - `/lang` → параметр `lang` (`auto`/`ru`/`en`)
@@ -254,9 +263,25 @@ docker compose up -d --build
 
 - **Предиктивный поиск** — подсказки по мере ввода, обученные на вашем контенте: `GET /api/suggest`
 
-- **ИИ-режим** — движок готовит контекст из топ-результатов поиска, а модель отвечает на его основе: RAG «поиск + генерация»
+- **ИИ-режим** — движок готовит контекст из топ-результатов поиска, а модель отвечает на его основе: RAG «поиск + генерация»: `POST /api/ai`
 
-Модель подключается один раз в «/P» и работает в любом клиенте.
+Модель подключается переменными окружения — без внешнего клиента и «/P»:
+
+```env
+AI_PROVIDER=openai     # любой из каталога /api/providers (полная поддержка)
+AI_MODEL=gpt-4o        # модель (по умолчанию своя у каждого провайдера)
+AI_API_KEY=sk-…        # ключ (не нужен локальным ollama и lmstudio)
+```
+
+```bash
+curl -X POST "http://localhost:3000/api/ai" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"как работает поиск","limit":5}'
+```
+
+Движок находит топ-результаты, собирает промпт «отвечай только по найденному», вызывает модель и возвращает ответ со списком источников. Не нашли в корпусе — модель честно скажет, что данных нет.
+
+Поддержаны три формата API: **OpenAI-совместимые** (openai, deepseek, groq, mistral, moonshot, minimax, x-ai, openrouter, together, fireworks, cerebras, ollama, lmstudio), **Anthropic** (claude) и **Google Gemini**. Кастомный endpoint для OpenAI-совместимых — `AI_BASE_URL`.
 
 ## 🧭Поисковые операторы
 

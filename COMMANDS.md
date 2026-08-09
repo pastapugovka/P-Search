@@ -26,6 +26,8 @@
 
 - `/restore` → `POST /api/restore` — откат к последнему бэкапу
 
+- `/ai` → `POST /api/ai` — ответ модели по найденному (нужен `AI_PROVIDER`)
+
 **Язык и настройки:**
 
 - `/lang` → параметр `lang` (`auto`/`ru`/`en`)
@@ -205,6 +207,20 @@ curl -X POST "http://localhost:3000/api/backup"
 curl -X POST "http://localhost:3000/api/restore"
 ```
 
+**`POST /api/ai`** — ИИ-режим: RAG-ответ модели по результатам поиска
+
+Требует настройку `AI_PROVIDER` (+ `AI_API_KEY` для облачных). Параметры: `query` (обязателен), `limit` (сколько результатов в контекст, по умолчанию 5), `category`, `tags`, `lang`. Ответ — текст модели плюс источники. Ошибки провайдера — `502`.
+
+```bash
+curl -X POST "http://localhost:3000/api/ai" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"как работает поиск","limit":5}'
+```
+
+**`GET /api/openapi.json`** — OpenAPI 3.1-спека всех эндпоинтов
+
+**`GET /api/docs`** — Swagger UI (интерактивная документация)
+
 **`GET /api/providers`** — каталог провайдеров
 
 Параметры: `group`, `query`
@@ -239,6 +255,8 @@ curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 
 - `CORS_ORIGIN` — разрешённые источники (*)
 
+- `API_KEY` — ключ авторизации (пусто — доступ открыт). Если задан — все `/api/*` требуют `Authorization: Bearer <ключ>` или `X-API-Key: <ключ>`; открыты всегда: `/api/health`, `/api/openapi.json`, `/api/docs`
+
 **Данные и приложение:**
 
 - `SEARCH_DATA` — путь к файлу с корпусом результатов поиска (./data/search-content.json)
@@ -254,6 +272,16 @@ curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 - `BOT_NAME` — имя бота для авто-привязки (пусто)
 
 Бэкапы хранятся в файловой базе s-db (`data/s-db.json`), снапшоты — в `data/backups/`. Подробная настройка — в [**`DATABASE.md`**](./DATABASE.md).
+
+**ИИ-режим (реальные вызовы моделей):**
+
+- `AI_PROVIDER` — провайдер: `openai`, `deepseek`, `groq`, `mistral`, `moonshot`, `minimax`, `x-ai`, `openrouter`, `together`, `fireworks`, `cerebras`, `ollama`, `lmstudio`, `anthropic`, `google` (пусто — ИИ-режим выключен)
+
+- `AI_MODEL` — модель (по умолчанию своя у каждого провайдера, например `gpt-4o`, `claude-sonnet-4`, `gemini-2.5-flash`)
+
+- `AI_API_KEY` — ключ провайдера (локальным `ollama` и `lmstudio` не нужен)
+
+- `AI_BASE_URL` — кастомный base-url для OpenAI-совместимых провайдеров
 
 **Поиск:**
 
