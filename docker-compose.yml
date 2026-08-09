@@ -1,0 +1,38 @@
+services:
+  p-search:
+    build: .
+    container_name: p-search
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      SEARCH_DATA: ./data/search-content.json
+      SEARCH_LEARN: dataset
+      SEARCH_BACKUP: "true"
+      DATABASE_URL: postgres://psearch:psearch@db:5432/psearch
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    container_name: p-search-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: psearch
+      POSTGRES_PASSWORD: psearch
+      POSTGRES_DB: psearch
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U psearch -d psearch"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -21,6 +21,18 @@
 
 ## 🚀Быстрый запуск
 
+**Развернуть через Docker (рекомендуется):**
+
+```bash
+git clone https://github.com/pastapugovka/P-Search.git
+cd P-Search
+docker compose up -d --build
+```
+
+По скрипту поднимутся поиск и база данных. Останавливается всё одной командой: `docker compose down`.
+
+**Запустить локально:**
+
 **Скопируйте проект:**
 
 ```bash
@@ -53,6 +65,9 @@ bun run dev
 curl "http://localhost:3000/api/health"
 curl "http://localhost:3000/api/search?query=поиск"
 ```
+
+> [!NOTE]
+> По умолчанию вместе с поиском поднимается **s-db** (SQLite) — она работает сразу из коробки, но для серьёзной нагрузки рекомендуем сменить её на что-то серьёзное: **PostgreSQL** (уже есть в docker-compose) или облачную базу.
 
 ## 🧠Обучение на данных
 
@@ -111,7 +126,7 @@ P-Search самостоятельно изучает содержимое ваш
 
 - **Корпус** — `SEARCH_DATA`, по умолчанию `data/search-content.json`
 - **Бэкапы включены по умолчанию**: словарь, частоты, статистика запросов и корпус сохраняются в базу данных
-- **База** — локальная `DATABASE_URL` (PostgreSQL через Prisma) или облачная: VK Cloud, Яндекс Облако, Cloud.ru, Google Cloud, AWS, MongoDB Atlas, Neon, Supabase, Redis, Turso Cloud, Upstash, MotherDuck, Convex
+- **База** — по умолчанию **s-db** (SQLite), поднимается вместе с поиском. Рекомендуем сразу сменить её на серьёзную: `DATABASE_URL` с PostgreSQL (через Prisma) или облачная — VK Cloud, Яндекс Облако, Cloud.ru, Google Cloud, AWS, MongoDB Atlas, Neon, Supabase, Redis, Turso Cloud, Upstash, MotherDuck, Convex
 - **Обучение переживает остановку сервиса** и восстанавливается при запуске
 - **Отключить** бэкапы: `SEARCH_BACKUP=false` — обучение живёт только в памяти и сбрасывается при остановке
 
