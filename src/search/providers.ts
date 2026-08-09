@@ -79,16 +79,5 @@ export const PROVIDERS: ProviderInfo[] = [
 	{ id: 'render', name: 'Render', group: 'Облака', models: ['web-service'] },
 	{ id: 'digitalocean', name: 'DigitalOcean', group: 'Облака', models: ['droplet'] },
 	{ id: 'heroku', name: 'Heroku', group: 'Облака', models: ['dyno'] },
-	{ id: 'scaleway', name: 'Scaleway', group: 'Облака', models: ['instance'] },
-	{ id: 'telegram', name: 'Telegram Bot API', group: 'Мессенджеры', models: ['bot-api'] },
-	{ id: 'discord', name: 'Discord Bot', group: 'Мессенджеры', models: ['slash-commands'] },
-	{ id: 'slack', name: 'Slack Apps', group: 'Мессенджеры', models: ['slash-commands'] },
-	{ id: 'whatsapp', name: 'WhatsApp Business', group: 'Мессенджеры', models: ['cloud-api'] },
-	{ id: 'viber', name: 'Viber', group: 'Мессенджеры', models: ['bot-api'] },
-	{ id: 'vk-bot', name: 'VK Bot', group: 'Мессенджеры', models: ['callback-api'] },
-	{ id: 'zenmoney', name: 'ZenMoney', group: 'Финансы', models: ['open-api'] },
-	{ id: 'tinkoff', name: 'Тинькофф', group: 'Финансы', models: ['open-api'] },
-	{ id: 'sberbank', name: 'Сбер Банк', group: 'Финансы', models: ['open-api'] },
-	{ id: 'yoomoney', name: 'ЮMoney', group: 'Финансы', models: ['payments'] },
-	{ id: 'qiwi', name: 'QIWI', group: 'Финансы', models: ['payments'] }
+	{ id: 'scaleway', name: 'Scaleway', group: 'Облака', models: ['instance'] }
 ];

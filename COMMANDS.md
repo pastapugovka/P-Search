@@ -6,16 +6,32 @@
 
 **Что делает:** символ `/` в строке поиска открывает палитру быстрых команд. Навигация — стрелки `↑` `↓`, выполнение — `Enter`, закрытие — `Esc`.
 
+**Работа с поиском:**
+
 - **`/help`** — справка по всем командам
+
 - **`/clear`** — очищает запрос и результаты
+
 - **`/history`** — история поисковых запросов
+
+**Данные и обучение:**
+
 - **`/export`** — экспорт набора данных в JSON
+
 - **`/import`** — импорт набора данных из JSON
+
 - **`/backup`** — сохранить бэкап обучения
+
 - **`/restore`** — откатить обучение к последнему бэкапу
+
+**Интерфейс:**
+
 - **`/settings`** — настройки поиска и отображения
+
 - **`/lang`** — язык интерфейса
+
 - **`/theme`** — светлая, тёмная и авто-тема
+
 - **`/bot`** — подключённые боты и их команды
 
 **Как использовать:**
@@ -37,10 +53,15 @@
 **Флаги:**
 
 - `--source` — путь к источнику или API-ключ
+
 - `--model` — нужная модель
+
 - `--format` — формат данных: `json` / `csv` / `xml` / `api`
+
 - `--sync` — подключить сразу
+
 - `--async` — подключить в фоне
+
 - `--disconnect` — отключить провайдера
 
 **Примеры:**
@@ -54,13 +75,15 @@
 
 **Каталог провайдеров по группам:**
 
-- **AI-модели** — anthropic, openai, google, mistral, meta, cohere, yandex, sber, vk, gigachat, deepseek, qwen, baidu, zhipu, moonshot, x-ai, perplexity, apple, databricks, ai21, writer, abacus
-- **Облака** — amazon, azure, ibm, oracle, snowflake, bigquery, datastax, dynamodb, vercel, cloudflare, deno, fly, railway, render, digitalocean, heroku, scaleway
-- **Инфраструктура** — groq, together, fireworks, replicate, nvidia, huggingface, anyscale, baseten, cerebras
-- **Локальные** — ollama, lamacpp, vllm, localai, textgen, petals
-- **Базы данных** — chroma, pinecone, weaviate, qdrant, milvus, vespa, elasticsearch, opensearch, meilisearch, typesense, algolia, redis, sqlite, postgres, mysql, mongo, clickhouse, duckdb, turbopuffer, neon, supabase, firebase, algolia-ecommerce, cassandra
-- **Мессенджеры** — telegram, discord, slack, whatsapp, viber, vk-bot
-- **Финансы** — zenmoney, tinkoff, sberbank, yoomoney, qiwi
+- **AI-модели** — anthropic, openai, google, x-ai, deepseek, mistral, moonshot, minimax, meta, cohere, zhipu, qwen, baidu, perplexity, databricks, ai21, writer, gigachat, sber, abacus, apple
+
+- **Инфраструктура** — groq, cerebras, fireworks, together, baseten, nvidia, huggingface, deepinfra, nebius, gmi, iotnet, cortecs, frogbot, venice, poolside, za, modal, 302ai, atomic-chat
+
+- **Облака и шлюзы** — amazon, azure, azure-cognitive, google-vertex, digitalocean, openrouter, github-copilot, gitlab-duo, ollama-cloud, vercel, cloudflare, helicone, llm-gateway, zenmux, stackit, ovhcloud, sap, snowflake, scaleway, opencode-zen
+
+- **Локальные** — ollama, lmstudio, llama.cpp, atomic-chat, vllm, localai, textgen, petals
+
+- **Базы данных** — chroma, pinecone, weaviate, qdrant, milvus, vespa, elasticsearch, opensearch, meilisearch, typesense, algolia, redis, sqlite, postgres, mysql, mongo, clickhouse, duckdb, turbopuffer, neon, supabase, firebase, cassandra
 
 Каталог доступен и через API: `GET /api/providers?group=AI-модели&query=claude`
 
@@ -73,16 +96,19 @@
 **Операторы:**
 
 - `@категория` — искать только в категории
-- `#тег` — искать только документы с тегом
+- `#тег` — искать только результаты поиска с тегом
+
 - `+слово` — слово обязательно в каждом результате
-- `-слово` — исключить документы со словом
+
+- `-слово` — исключить результаты поиска со словом
+
 - `"фраза"` — искать точную фразу
 
 **Примеры:**
 
 ```text
 @инфраструктура docker   → docker в категории «инфраструктура»
-#поиск стемминг          → стемминг среди документов с тегом «поиск»
+#поиск стемминг          → стемминг среди результатов с тегом «поиск»
 +контейнер -docker       → контейнер, но без docker
 "поисковый бэкенд"       → точная фраза
 ```
@@ -122,7 +148,7 @@ curl "http://localhost:3000/api/suggest?query=пои&limit=5"
 
 **`GET /api/context`** — категории, теги и статистика индекса
 
-**`GET /api/documents`** — документы корпуса
+**`GET /api/documents`** — результаты поиска (корпус)
 
 Параметры: `limit` (по умолчанию 50), `offset`, `category`, `tag`
 
@@ -181,10 +207,10 @@ curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 
 **Данные и приложение:**
 
-- `SEARCH_DATA` — путь к файлу с корпусом документов (./data/search-content.json)
+- `SEARCH_DATA` — путь к файлу с корпусом результатов поиска (./data/search-content.json)
 - `DATABASE_URL` — строка подключения к базе бэкапов (PostgreSQL через Prisma)
 - `SEARCH_LEARN` — режим обучения: `dataset` (только данные набора) или `queries` (данные + поисковые запросы)
-- `SEARCH_BACKUP` — бэкапы обучения в базе данных: `true` по умолчанию, `false` — сброс при остановке
+- `SEARCH_BACKUP` — бэкапы обучения в базе данных: `true` по умолчанию; `false` — данные не теряются, просто не пишутся в базу
 - `APP_NAME` — имя приложения («Поисковая система»)
 - `BOT_NAME` — имя бота для авто-привязки (пусто)
 
@@ -212,10 +238,17 @@ curl -X DELETE "http://localhost:3000/api/bots/мой-бот"
 
 ## 🎯Примеры команд
 
+**Поиск:**
+
 ```bash
 curl "http://localhost:3000/api/search?query=docker"
 curl "http://localhost:3000/api/search?query=+контейнер+-docker&limit=5"
 curl "http://localhost:3000/api/search?query=@инфраструктура%20docker&fuzzy=true&lang=ru"
+```
+
+**Подсказки и контекст:**
+
+```bash
 curl "http://localhost:3000/api/suggest?query=пои"
 curl "http://localhost:3000/api/context"
 ```

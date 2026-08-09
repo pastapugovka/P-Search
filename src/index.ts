@@ -23,7 +23,7 @@ try {
 	const engine = new SearchEngine(docs, config.engine);
 	const stats = engine.context().stats;
 	console.log(
-		`[${config.appName}] Индекс готов: ${stats.docs} документов, ${stats.terms} терминов за ${stats.buildMs} мс`
+		`[${config.appName}] Индекс готов: ${stats.docs} результатов поиска, ${stats.terms} терминов за ${stats.buildMs} мс`
 	);
 
 	const bots = new BotRegistry(config.botName ? [{ name: config.botName, platform: 'env', commands: ['/help'] }] : []);

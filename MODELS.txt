@@ -1,106 +1,145 @@
 P-Search — список поддерживаемых моделей
 
-75+ провайдеров в 7 группах. Подключение — через палитру /P: /P <провайдер> --source <ключ> --model <модель>
+Каталог собран по документации OpenCode: провайдеры и модели, с которыми работает экосистема. Пометки: «полная поддержка» — проверено и работает целиком, «частичная совместимость» — работает после дополнительной настройки, «не проверено» — совместимость возможна, но не проверена.
 
 AI-модели
-- Anthropic — claude-3-5-sonnet, claude-3-opus, claude-3-haiku
-- OpenAI — gpt-4o, gpt-4-turbo, gpt-3-5-turbo
-- Google — gemini-1-5-pro, gemini-1-5-flash, gemini-1-0
-- Mistral AI — mistral-large, mistral-medium, mixtral-8x7b
-- Meta — llama-3-1-405b, llama-3-70b, codellama-70b
-- Cohere — command-r-plus, command-r, command
-- Яндекс — yandexgpt, yandexgpt-pro, yandexart
-- Сбер — gigachat, gigachat-pro, gigachat-lite
-- VK — vk-gpt, kandinsky-3, kandinsky-4
-- GigaChat — gigachat-max, gigachat-plus
-- DeepSeek — deepseek-chat, deepseek-coder
-- Qwen (Алибаба) — qwen-2-5-72b, qwen-2-5-coder
-- Baidu ERNIE — ernie-4-0, ernie-bot
-- Zhipu GLM — glm-4, glm-4-plus
-- Moonshot Kimi — kimi-k2, moonshot-v1
-- xAI — grok-2, grok-2-mini
-- Perplexity — sonar, sonar-pro
-- Apple — openelm-3b, ferret
-- Databricks — dbrx, llama-3
-- AI21 Labs — jamba-1-5, jurassic-2
-- Writer — palmyra-x
-- Abacus AI — gpt-4, claude-3
 
-Облака
-- Amazon Bedrock — claude-3-sonnet, llama-3-1, mistral-large
-- Microsoft Azure — azure-gpt-4o, azure-gpt-35, phi-3
-- IBM watsonx — granite, llama-3
-- Oracle OCI — llama-3, cohere
-- Snowflake Arctic — arctic-instruct
-- Google BigQuery — sql-search
-- DataStax Astra — vector
-- Amazon DynamoDB — nosql
-- Vercel — edge-functions
-- Cloudflare Workers — worker-ai
-- Deno Deploy — edge-runtime
-- Fly.io — machines
-- Railway — railway-app
-- Render — web-service
-- DigitalOcean — droplet
-- Heroku — dyno
-- Scaleway — instance
+- Anthropic — Claude Opus 4, Sonnet 4, Haiku 4.5 (полная поддержка)
+
+- OpenAI — GPT-5, GPT-5-nano, GPT-4o, ChatGPT Plus и Pro (полная поддержка)
+
+- Google — Gemini (полная поддержка)
+
+- xAI — Grok (полная поддержка)
+
+- DeepSeek — V4 Pro, V3, R1 (полная поддержка)
+
+- Mistral AI — Mistral Large, Medium, Mixtral 8x7B (полная поддержка)
+
+- Moonshot AI — Kimi K2, Moonshot V1 (полная поддержка)
+
+- MiniMax — M2.1 (полная поддержка)
+
+- Meta — Llama 3.1 405B, Llama 3 70B, CodeLlama 70B (частичная совместимость)
+
+- Cohere — Command R+ (не проверено)
+
+- Zhipu GLM — GLM-4.6 (не проверено)
+
+- Qwen (Алибаба) — Qwen 2.5 72B, Qwen Coder (не проверено)
+
+- Baidu ERNIE — ERNIE 4.0 (не проверено)
+
+- Perplexity — Sonar (не проверено)
+
+- Databricks — DBRX (не проверено)
+
+- AI21 Labs — Jamba 1.5 (не проверено)
+
+- Writer — Palmyra X (не проверено)
+
+- GigaChat — GigaChat Max (не проверено)
+
+- Сбер — GigaChat Pro (не проверено)
+
+- Abacus AI — GPT-4, Claude-3 (не проверено)
+
+- Apple — OpenELM 3B (не проверено)
 
 Инфраструктура
-- Groq — llama-3-1-8b, mixtral-8x7b
-- Together AI — llama-3-1-405b, qwen-2-5-72b
-- Fireworks AI — llama-3-1, qwen-2-5
-- Replicate — llama-3, flux-schnell
-- NVIDIA NIM — llama-3-1-70b, mistral-7b
-- Hugging Face — zephyr, falcon
-- Anyscale — llama-3-1, mixtral
-- Baseten — llama-3, mixtral
-- Cerebras — llama-3-1-70b
+
+- Groq — Llama 3.1, Mixtral 8x7B (полная поддержка)
+
+- Cerebras — Qwen 3 Coder 480B (полная поддержка)
+
+- Fireworks AI — Kimi K2 Instruct (полная поддержка)
+
+- Together AI — Llama 3.1 405B, Qwen 2.5 72B (полная поддержка)
+
+- Baseten — Kimi K2 Instruct (полная поддержка)
+
+- NVIDIA NIM — Nemotron 3 Super 120B, Nemotron Mixture (полная поддержка)
+
+- Hugging Face — Kimi-K2-Instruct, GLM-4.6 (полная поддержка)
+
+- Deep Infra — llama, qwen (не проверено)
+
+- Modal — общие эндпоинты (не проверено)
+
+- IO.NET — 17 моделей (не проверено)
+
+- Nebius Token Factory — Kimi K2 Instruct (не проверено)
+
+- 302.AI — (не проверено)
+
+- GMI Cloud — (не проверено)
+
+- Cortecs — Kimi K2 Instruct (не проверено)
+
+- FrogBot — (не проверено)
+
+- Venice AI — (не проверено)
+
+- Poolside — (не проверено)
+
+- Z.AI — (не проверено)
+
+Облака и шлюзы
+
+- Amazon Bedrock — Claude, Llama, Mistral (частичная совместимость — нужен доступ к моделям)
+
+- Azure OpenAI — GPT-4o, GPT-35 (частичная совместимость — нужен деплой модели)
+
+- Azure Cognitive Services — (не проверено)
+
+- Google Vertex AI — Gemini (частичная совместимость — нужен проект с Vertex)
+
+- DigitalOcean — Llama, Qwen, DeepSeek (частичная совместимость)
+
+- OpenRouter — 300+ моделей единым ключом (полная поддержка)
+
+- GitHub Copilot — GPT, Claude (частичная совместимость — подписка Copilot)
+
+- GitLab Duo — Claude Haiku 4.5, Sonnet 4.5, Opus 4.5 (не проверено — экспериментальная)
+
+- Ollama Cloud — GPT-OSS 20B Cloud (не проверено)
+
+- Vercel AI Gateway — (не проверено)
+
+- Cloudflare AI Gateway — GPT-4o, Claude (не проверено)
+
+- Cloudflare Workers AI — (не проверено)
+
+- Helicone — маршрутизация моделей (не проверено)
+
+- LLM Gateway — (не проверено)
+
+- ZenMux — (не проверено)
+
+- STACKIT — (не проверено)
+
+- OVHcloud AI Endpoints — (не проверено)
+
+- SAP AI Core — (не проверено)
+
+- Snowflake Cortex — (не проверено)
+
+- Scaleway — (не проверено)
 
 Локальные
-- Ollama — llama3, mistral, qwen2
-- llama.cpp — ggml, gguf
-- vLLM — openai-совместимая
-- LocalAI — llama, gpt4all
-- oobabooga — llama, mistral
-- Petals — bloom-176b
 
-Базы данных
-- ChromaDB — embedder
-- Pinecone — vector-embedder
-- Weaviate — vector-index
-- Qdrant — vector-index
-- Milvus — vector-index
-- Vespa — search-index
-- Elasticsearch — bm25, vector
-- OpenSearch — bm25
-- Meilisearch — typo-tolerance
-- Typesense — geosearch
-- Algolia — algolia-search
-- Redis — redisearch
-- SQLite FTS5 — fts5
-- PostgreSQL — tsvector
-- MySQL — fulltext
-- MongoDB Atlas — atlas-search
-- ClickHouse — fulltext
-- DuckDB — fts
-- Turbopuffer — vector
-- Neon — pgvector
-- Supabase — pgvector
-- Firebase — firestore
-- Algolia Commerce — ecommerce-search
-- Cassandra — cql
+- Ollama — Llama 3, Mistral, Qwen 2, GPT-OSS (полная поддержка)
 
-Мессенджеры
-- Telegram Bot API — bot-api
-- Discord Bot — slash-commands
-- Slack Apps — slash-commands
-- WhatsApp Business — cloud-api
-- Viber — bot-api
-- VK Bot — callback-api
+- LM Studio — Gemma 3n E4B, любые скачанные модели (полная поддержка)
 
-Финансы
-- ZenMoney — open-api
-- Тинькофф — open-api
-- Сбер Банк — open-api
-- ЮMoney — payments
-- QIWI — payments
+- llama.cpp — Qwen3-Coder A3B, GGUF-модели (частичная совместимость)
+
+- Atomic Chat — локальный сервер на OpenAPI-совместимом порту (частичная совместимость)
+
+- vLLM — OpenAI-совместимые (не проверено)
+
+- LocalAI — Llama, GPT4All (не проверено)
+
+- oobabooga — Llama, Mistral (не проверено)
+
+- Petals — Bloom 176B (не проверено)
