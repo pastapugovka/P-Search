@@ -21,14 +21,33 @@
 
 ## 🚀Быстрый запуск
 
+**Скопируйте проект:**
+
 ```bash
 git clone https://github.com/pastapugovka/P-Search.git
+```
+
+**Перейдите в папку:**
+
+```bash
 cd P-Search
+```
+
+**Установите зависимости:**
+
+```bash
 bun install
+```
+
+**Запустите сервис:**
+
+```bash
 bun run dev
 ```
 
-Сервис поднимется на `http://localhost:3000` с 38 демонстрационными документами:
+Сервис поднимется на `http://localhost:3000` с 38 демонстрационными документами.
+
+**Проверьте работу:**
 
 ```bash
 curl "http://localhost:3000/api/health"
@@ -130,6 +149,8 @@ P-Search самостоятельно изучает содержимое ваш
 /P openai   --source sk-xxx     --model gpt-4o            --async
 /P google   --source AIza-xxx   --model gemini-1-5-pro    --async
 ```
+
+<br>
 
 Флаги: `--source` (ключ или путь) · `--model` (модель) · `--format` (`json`/`csv`/`xml`/`api`) · `--sync`/`--async` · `--disconnect`.
 
